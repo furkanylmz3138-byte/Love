@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Valentine</title>
+
+<style>
+body {
+  margin: 0;
+  background: white;
+  overflow: hidden;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+/* Sahne */
+.scene {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 50px;
+}
+
+.side {
+  width: 40%;
+  text-align: center;
+}
+
+video {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+/* Butonlar */
+.buttons {
+  position: absolute;
+  bottom: 40px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+button {
+  font-size: 28px;
+  padding: 15px 40px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  border: none;
+  border-radius: 12px;
+  background-color: #e91e63;
+  color: white;
+}
+
+button:hover {
+  transform: scale(1.1);
+}
+
+/* ❤️ Kalpler */
+.heart {
+  position: fixed;
+  top: -50px;
+  font-size: 30px;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh);
+  }
+}
+
+/* Başlangıç sorusu */
+#question {
+  position: absolute;
+  top: 15%;
+  width: 100%;
+  text-align: center;
+  font-size: 48px;
+  font-weight: bold;
+  color: #e91e63;
+  text-shadow: 2px 2px 5px #f8bbd0;
+  padding: 0 10px;
+  word-break: break-word;
+}
+
+/* Aşık yazısı */
+#loveText {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 36px;
+  color: #e91e63;
+  text-shadow: 1px 1px 3px #f8bbd0;
+  word-break: break-word;
+}
+
+/* Köşedeki müzik butonu kutusu */
+#musicBtnContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 12px;
+  background-color: rgba(233,30,99,0.8);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 24px;
+  color: white;
+}
+
+#musicBtnContainer:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.2); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Müziği asla silinmeyecek container’da tutuyoruz -->
+<div id="musicContainer">
+  <audio id="bgMusic" src="music.mp3" loop></audio>
+  <div id="musicBtnContainer">❤️ 🎵</div>
+</div>
+
+<div class="scene" id="scene">
+  <div class="side">
+    <video id="boy" src="fixed_boy_idle.mp4" autoplay loop muted playsinline></video>
+  </div>
+
+  <div class="side">
+    <video id="girl" src="fixed_girl_idle.mp4" autoplay loop muted playsinline></video>
+  </div>
+</div>
+
+<!-- Başlangıç sorusu -->
+<div id="question">Хочеш стати моєю єдиною та коханою дівчиною, Марина?</div>
+
+<!-- YES / NO butonları -->
+<div class="buttons" id="buttons">
+  <button id="noBtn" onclick="no()">Ні 😅</button>
+  <button id="yesBtn" onclick="yes()">Так 💖</button>
+</div>
+
+<script>
+let noCount = 0;
+let musicStarted = false;
+
+// Müzik DOM’da hep kalacak
+const music = document.getElementById("bgMusic");
+
+// Kalp+muzik butonu animasyonu
+const musicBtnContainer = document.getElementById("musicBtnContainer");
+musicBtnContainer.style.animation = "heartbeat 1s infinite";
+
+// Butona tıklandığında müzik başlar ve asla kesilmez
+musicBtnContainer.addEventListener('click', () => {
+  if(!musicStarted){
+    music.play().catch(()=>console.log("Müzik çalamadı"));
+    musicStarted = true;
+    musicBtnContainer.style.opacity = 1;
+  }
+});
+
+// NO fonksiyonu
+function no() {
+  noCount++;
+  document.getElementById("boy").src = "fixed_boy_cry.mp4";
+  document.getElementById("girl").src = "fixed_girl_no.mp4";
+  document.getElementById("boy").play();
+  document.getElementById("girl").play();
+
+  const noBtn = document.getElementById("noBtn");
+  noBtn.style.position = "absolute";
+  noBtn.style.left = Math.random() * 80 + "%";
+  noBtn.style.top = Math.random() * 60 + "%";
+
+  document.getElementById("yesBtn").style.transform =
+    `scale(${1 + noCount * 0.2})`;
+}
+
+// YES fonksiyonu
+function yes() {
+  // Sahneyi temizle ama müzik container’ı DOM’da tut
+  const musicContainer = document.getElementById("musicContainer");
+  document.body.innerHTML = "";
+  document.body.appendChild(musicContainer);
+
+  const kiss = document.createElement("video");
+  kiss.src = "fixed_kiss_scene.mp4";
+  kiss.autoplay = true;
+  kiss.loop = true;
+  kiss.style.position = "absolute";
+  kiss.style.left = "50%";
+  kiss.style.top = "50%";
+  kiss.style.transform = "translate(-50%, -50%)";
+  kiss.style.maxWidth = "80%";
+  kiss.setAttribute("playsinline", "");
+  document.body.appendChild(kiss);
+
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerText = "❤️";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (2 + Math.random() * 3) + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 5000);
+  }, 200);
+
+  const loveText = document.createElement("div");
+  loveText.id = "loveText";
+  loveText.innerHTML = "Я знав, я теж тебе кохаю, Марина ❤️";
+  document.body.appendChild(loveText);
+}
+</script>
+
+</body>
+</html>
